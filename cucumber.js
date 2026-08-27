@@ -23,6 +23,5 @@ module.exports = {
         },
 
         publishQuiet: true
-        publishQuiet: true
     }
 };

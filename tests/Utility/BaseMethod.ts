@@ -269,11 +269,4 @@ export class BaseMethod extends EnvReader {
         await locator.setInputFiles(filePath);
 
     }
-
-    
-
-
-
-
-
 }
