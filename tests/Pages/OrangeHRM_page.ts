@@ -32,6 +32,9 @@ export class OrangeHRMPage extends BaseMethod {
     async ClickSubmit(){
         await this.clickElement(this.loginbtn())
     }
+    async ClickSubmit1(){
+        await this.clickElement(this.loginbtn())
+    }
 
     async OrangeHRMTitle(title:string){
         await this.WaitLoadstate();

@@ -259,6 +259,16 @@ export class BaseMethod extends EnvReader {
         await locator.setInputFiles(filePath);
 
     }
+    async uploadImage1(locator: Locator, filePath: string) {
+
+        await locator.setInputFiles(filePath);
+
+    }
+    async uploadImage2(locator: Locator, filePath: string) {
+
+        await locator.setInputFiles(filePath);
+
+    }
 
     
 
