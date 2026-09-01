@@ -10,6 +10,7 @@ pipeline {
         CI = 'true'
         ALLURE_RESULTS_DIR = 'allure-results'
         ALLURE_REPORT_DIR = 'allure-report'
+        OrangeHRM_URL = 'https://opensource-demo.orangehrmlive.com/'
     }
 
     stages {
