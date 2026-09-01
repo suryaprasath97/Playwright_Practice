@@ -26,7 +26,10 @@ pipeline {
                 echo '========== Checking Node.js and NPM versions =========='
 
                 bat '''
+                    echo ===== Node Version =====
                     node -v
+
+                    echo ===== NPM Version =====
                     npm -v
                 '''
             }
@@ -38,17 +41,19 @@ pipeline {
 
                 bat '''
                     if exist package-lock.json (
-                        echo "package-lock.json found - running npm ci"
+                        echo package-lock.json found
+                        echo Running npm ci...
                         npm ci
                     ) else (
-                        echo "package-lock.json not found - running npm install"
+                        echo package-lock.json not found
+                        echo Running npm install...
                         npm install
                     )
                 '''
             }
         }
 
-        stage('Install Playwright Browsers') {
+        stage('Install Playwright Browser') {
             steps {
                 echo '========== Installing Playwright Chromium =========='
 
@@ -64,23 +69,41 @@ pipeline {
 
                 bat '''
                     if exist "%ALLURE_RESULTS_DIR%" (
-                        echo Removing allure-results...
                         rmdir /s /q "%ALLURE_RESULTS_DIR%"
                     )
 
                     if exist "%ALLURE_REPORT_DIR%" (
-                        echo Removing allure-report...
                         rmdir /s /q "%ALLURE_REPORT_DIR%"
                     )
 
                     if exist "playwright-report" (
-                        echo Removing playwright-report...
                         rmdir /s /q "playwright-report"
                     )
 
                     if exist "test-results" (
-                        echo Removing test-results...
                         rmdir /s /q "test-results"
+                    )
+                '''
+            }
+        }
+
+        stage('Verify Cucumber Configuration') {
+            steps {
+                echo '========== Verifying Cucumber configuration =========='
+
+                bat '''
+                    echo ===== Cucumber Version =====
+                    npx cucumber-js --version
+
+                    echo ===== Project Files =====
+                    dir
+
+                    echo ===== Tests Directory =====
+                    if exist "tests" (
+                        dir tests
+                    ) else (
+                        echo ERROR: tests directory not found
+                        exit /b 1
                     )
                 '''
             }
@@ -91,7 +114,14 @@ pipeline {
                 echo '========== Running Cucumber BDD Tests =========='
 
                 bat '''
-                    npm run test:Orange
+                    echo ===== Starting Cucumber =====
+
+                    npx cucumber-js --tags "@OrangeHRMlogin" --format progress
+
+                    if %ERRORLEVEL% NEQ 0 (
+                        echo ===== CUCUMBER TESTS FAILED =====
+                        exit /b %ERRORLEVEL%
+                    )
                 '''
             }
         }
@@ -105,7 +135,8 @@ pipeline {
                         echo Allure results found.
                         npm run allure:generate
                     ) else (
-                        echo No Allure results found. Skipping Allure report generation.
+                        echo No Allure results found.
+                        echo Skipping Allure report generation.
                     )
                 '''
             }
@@ -117,22 +148,14 @@ pipeline {
         always {
             echo '========== Publishing Test Results =========='
 
-            echo '========== Archiving Allure Results =========='
-
             archiveArtifacts artifacts: 'allure-results/**',
                              allowEmptyArchive: true
-
-            echo '========== Archiving Allure Report =========='
 
             archiveArtifacts artifacts: 'allure-report/**',
                              allowEmptyArchive: true
 
-            echo '========== Archiving Playwright Report =========='
-
             archiveArtifacts artifacts: 'playwright-report/**',
                              allowEmptyArchive: true
-
-            echo '========== Archiving Test Results =========='
 
             archiveArtifacts artifacts: 'test-results/**',
                              allowEmptyArchive: true
@@ -152,7 +175,6 @@ pipeline {
 
         cleanup {
             echo '========== Cleaning up workspace =========='
-
             deleteDir()
         }
     }
